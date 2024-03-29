@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "SSH Authorization",
+			"type": "shell",
+			"command": "cat ~/.ssh/id_rsa.pub | ssh ${config:user}@${config:target_ip} 'cat >> .ssh/authorized_keys'",
+		},
+		{
+			"label": "Build Application",
+			"type": "shell",
+			"command": "cargo build --release",
+		},
+		{
+			"label": "Run Application",
+			"type": "shell",
+			"command": "ssh ${config:user}@${config:target_ip} '/tmp/ADC'",
+			"dependsOn": [
+                "Build Application",
+                "Connect SSH and Copy Application"
+            ],
+            "dependsOrder": "sequence",
+		},
+		{
+			"label": "Connect SSH and Copy Application",
+			"type": "shell",
+			"command": "scp",
+			"args": [
+				"${workspaceFolder}/target/armv7-unknown-linux-musleabihf/release/ADC",
+				"${config:user}@${config:target_ip}:/tmp"
+			],
+		},
+	]
+}
+
